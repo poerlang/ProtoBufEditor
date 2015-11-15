@@ -1,0 +1,54 @@
+package pb.gamesvr.proto;
+
+
+enum emCommmonApply {
+    kCommmonAccept      = 1;  /*通过*/
+    kCommmonRefused     = 2;  /*拒绝*/
+}
+
+enum emPvpFightStateType {
+    kPlayerOffLine      = 1;  /*掉线*/
+}
+
+message SkillInfo {
+    required  int32               skillSID            = 1;  
+    required  int32               level               = 2;  
+    required  int32               key                 = 3;  
+    required  int32               mp                  = 4;  
+    optional  int32               exp                 = 5;  
+}
+
+message EquipInfo {
+    required  int32               pos                 = 1;  /*装备位置*/
+    required  int32               equipSID            = 2;  
+    required  int32               level               = 3;  
+}
+
+message BaseInfo {
+    required  int32               strength            = 1;  /*当前体力*/
+    required  int32               level               = 2;  /*当前等级*/
+    required  int32               exp                 = 3;  /*当前经验 */
+    required  int32               coin                = 4;  /*金币 */
+    required  int32               gold                = 5;  /*钻石 */
+}
+
+/*登录*/
+message LoginReq {
+    required  int32               userID              = 1;  /*用户ID*/
+}
+
+message LoginRsp {
+    required  PlayerInfo          player              = 1;  /*角色信息*/
+    required  int32               money               = 2;  /*金币*/
+    required  int32               gold                = 3;  /*钻石*/
+    required  int32               strength            = 4;  /*体力*/
+    required  int32               cityID              = 5;  /*所在城市*/
+    required  int32               lastLogin           = 6;  /*上次登录时间*/
+}
+
+/*玩家信息*/
+message PlayerInfo {
+    required  int32               id                  = 1;  /*全局唯一id*/
+    required  string              name                = 2;  /*玩家名称*/
+    required  string              email               = 3;  /*玩家email[nos]*/
+}
