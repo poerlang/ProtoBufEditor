@@ -50,5 +50,5 @@ message LoginRsp {
 message PlayerInfo {
     required  int32               id                  = 1;  /*全局唯一id*/
     required  string              name                = 2;  /*玩家名称*/
-    required  string              email               = 3;  /*玩家email[nos]*/
+    required  string              email               = 3;  /*玩家email[nos][nos]*/
 }
