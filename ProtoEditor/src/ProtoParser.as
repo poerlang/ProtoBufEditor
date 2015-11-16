@@ -340,7 +340,8 @@ package
 					var comm:String=parseFieldComment();
 					var params:Array = parseParamInComment(comm);
 					ob.comm=params[0];
-					ob.params = params.slice(1);
+					if(params[1].lenght==1)ob.type3 = params[1][0];
+					ob.params = params[1];
 					ch=getNextChar();
 				}
 
@@ -352,9 +353,12 @@ package
 		
 		private function parseParamInComment(comm:String):Array
 		{
-			var m:Array = comm.match(/\[/);
-			if(m && m.length>1){
-				trace(m);
+			var m:Array = comm.match(/\[(.*)]/);
+			if(m && m.length>0){
+				var len:int = String(m[0]).length;
+				comm = comm.slice(0,m.index)+comm.slice(m.index+len);
+				var param:Array = String(m[1]).split(",");
+				return [comm,param];
 			}
 			return [comm,[]];
 		}
@@ -402,7 +406,10 @@ package
 				{
 					putBack();
 					var comm:String=parseFieldComment();
-					ob.comm=comm;
+					var params:Array = parseParamInComment(comm);
+					ob.comm=params[0];
+					if(params[1].length==1)ob.type3 = params[1][0];
+					ob.params=params[1];
 					ch=getNextChar();
 				}
 
@@ -415,7 +422,10 @@ package
 		private function parseMsgComm(msg:ItemData):void
 		{
 			if(lastComm!=""){
-				msg.comm = cleanComm(lastComm);
+				var comm:String = cleanComm(lastComm);
+				var param:Array = parseParamInComment(comm);
+				msg.comm = param[0];
+				msg.params = param[1];
 				lastComm = "";
 			}
 		}

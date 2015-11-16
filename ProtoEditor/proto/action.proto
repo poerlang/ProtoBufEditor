@@ -46,9 +46,9 @@ message LoginRsp {
     required  int32               lastLogin           = 6;  /*上次登录时间*/
 }
 
-/*玩家信息*/
+/*玩家信息[noc]*/
 message PlayerInfo {
-    required  int32               id                  = 1;  /*全局唯一id*/
-    required  string              name                = 2;  /*玩家名称*/
-    required  string              email               = 3;  /*玩家email[nos][nos]*/
+    required  int32               id                  = 1;  /*全局唯一id[noc]*/
+    required  string              name                = 2;  /*玩家名称[noc]*/
+    required  string              email               = 3;  /*玩家email[nos]*/
 }
