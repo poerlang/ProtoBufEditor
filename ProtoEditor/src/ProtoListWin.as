@@ -25,20 +25,31 @@ package
 			},1000);
 		}
 		
-		private function save():void
+		private function save(mode:int=ItemData.MODE_NORMAL):void
 		{
 			if(!ProtoEditor.ins.rootItem){
 				return;
 			}
 			ProtoEditor.ins.rootItem.saveSubs();
+			
+			var out:String = getOutPut(mode);
+			var outs:String = getOutPut(ItemData.MODE_SERVER);
+			var outc:String = getOutPut(ItemData.MODE_CLIENT);
+			
+			var path:String = FileUtil.saveByKey(PathConfigWin.SO_Proto_Path,out);
+			FileUtil.save(path+"s.proto",outs);
+			FileUtil.save(path+"c.proto",outc);
+		}
+		
+		private function getOutPut(mode:int):String
+		{
 			var out:String = "";
 			for (var i:int = 0; i < arr.length; i++){
 				var e:ItemData = arr[i] as ItemData;
-				out += e.toString();
+				out += e.toString(mode);
 			}
-			
 			out = ("package pb.gamesvr.proto;\n\n"+out);
-			FileUtil.saveByKey(PathConfigWin.SO_Proto_Path,out);
+			return out;
 		}
 		public var onSave:Signal = new Signal();
 		public function ProtoListWin(parent:DisplayObjectContainer=null, xpos:Number=0, ypos:Number=0, title:String="列表")
@@ -62,9 +73,6 @@ package
 					onSelFunction(fileitem);
 				});
 			});btn.width=btnW;
-			btn = new PushButton(menu,0,0,"刷新",function(e):void{
-				ins.updatePath(path);
-			});btn.width=btnW;
 			btn = new PushButton(menu,0,0,"删除",function(e):void{
 				if(now){
 					var index:int = arr.indexOf(now.item.ob);
@@ -87,6 +95,9 @@ package
 			btn = new PushButton(menu,0,0,"保存 proto",function(e):void{
 				save();
 			});btn.width=btnW+30;
+			btn = new PushButton(menu,0,0,"刷新",function(e):void{
+				ins.updatePath(path);
+			});btn.width=btnW;
 			body = new VBox(html);
 		}
 		public var now:ProtoListFile;
@@ -143,6 +154,19 @@ package
 			msg.isSel = true;
 			now = msg;
 			ProtoEditor.ins.show(now);
+		}
+		
+		public function export():void
+		{
+			if(!ProtoEditor.ins.rootItem){
+				return;
+			}
+			ProtoEditor.ins.rootItem.saveSubs();
+			
+			for (var i:int = 0; i < arr.length; i++){
+				var e:ItemData = arr[i] as ItemData;
+				e.toXls();
+			}
 		}
 	}
 }

@@ -120,9 +120,6 @@ package com.bit101.components
 			if(e.keyCode==40)_list2.selectedIndex = _list2.selectedIndex+1;//↓
 			if(e.keyCode==13){
 				text = _list2.selectedItem+"";//回车
-				if(onSelectFun){
-					onSelectFun(this);
-				}
 				removeList2();
 				setTimeout(function():void{
 					_labelButton.textField.setSelection(99,99);
@@ -164,6 +161,10 @@ package com.bit101.components
 		}
 		protected function removeList2():void
 		{
+			if(onSelectFun){
+				onSelectFun(this);
+			}
+			_stage.removeEventListener(MouseEvent.CLICK, onStageClick2);
 			if(_stage.contains(_list2)) _stage.removeChild(_list2);
 		}
 		

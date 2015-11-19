@@ -10,6 +10,7 @@ package
 	
 	import flash.events.Event;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.setTimeout;
 	
 	public class Item extends VBox
@@ -82,12 +83,12 @@ package
 			}
 			new Label(menu,0,0,deepStr);
 			
-			inputText = new InputText(menu,0,0,isTopType?type2:ob.name,function(e):void{
+			inputText = new InputText(menu,0,0,ob.isClass?type2:ob.name,function(e):void{
 				ob.name = e.target.text;
 				save();
 			}); inputText. width=150;
 			
-			if(isTopType){
+			if(ob.isClass && ob.type1!="repeated"){
 				new ComboBox(menu,0,0,type2=="enum"?"enum":"class",comb_type0,function(c):void{
 					ob.type1 = c.selectedItem;
 					save();
@@ -148,19 +149,50 @@ package
 			
 			if(ob.type1=="repeated"){
 				if(!subs)subs = new VBox(me);
-				var plus:PushButton = new PushButton(menu,0,0,"+",function():void{
-					me.alpha = 1;
+				function addsub(p:Item,data:ItemData=null):void{
+					p.alpha = 1;
 					var item2:Item = new Item;
-					var data:ItemData = new ItemData();
-					data.type1 = "required";
-					data.name = "";
+					
+					if(data==null){
+						data = new ItemData();
+						data.type1 = "required";
+						data.type2 = ob.type2;
+						data.name = "";
+					}
 					wrap(item2,data);
-					subArray.push(item2);
-					item2.deep = deep+1;
-					subs.addChild(item2);
-					up();
-					save();
-				});
+					p.subArray.push(item2);
+					item2.deep = p.deep+1;
+					if(!p.subs)p.subs = new VBox(p); 
+					if(data.isClass){
+						data.type1 = "class";
+					}
+					p.subs.addChild(item2);
+					if(data.isClass && data.type1!="repeated"){
+						var aClass:ItemData = ProtoParser.classDic[data.type2];
+						if(aClass && aClass.arr){
+							for (var i2:int = 0; i2 < aClass.arr.length; i2++){
+								var c:ItemData = aClass.arr[i2] as ItemData;
+								addsub(item2,c);
+							}
+						}
+					}
+					p.up();
+					p.saveSubs();
+					p.save();
+				}
+				var searchIndex:int = ob.paramsStr.search(/loop\d/);
+				if(searchIndex>=0){
+					var searchIndex2:int = ob.paramsStr.search(/loop\d\d/);//支持两位数的 repeated 数量
+					var units:int = searchIndex2>=0? 2:1;//位数
+					var num:int = parseInt(ob.paramsStr.slice(searchIndex+4,searchIndex+4+units));
+					for (var j:int = 0; j < num; j++){
+						setTimeout(addsub,55*j,me);
+					}
+				}
+				function onPlus():void{
+					addsub(me);
+				}
+				var plus:PushButton = new PushButton(menu,0,0,"+",onPlus);
 				var minus:PushButton = new PushButton(menu,0,0,"-",function():void{
 					if(subs.numChildren==0){
 						return;
@@ -179,50 +211,65 @@ package
 						plus.enabled = true;
 					}
 					up();
+					me.saveSubs();
 					save();
 				});
 			}
-			new ComboBox(menu,0,0,ob.type3?value2label(ob.type3,comb_type3):"",comb_type3,function(c:ComboBox):void{
-				ob.type3 = c.selectedItem.value+"";
-				save();
-				if(!subs) return;
-				for (var j:int = 0; j < subs.numChildren; j++){
-					var s:Item = subs.getChildAt(j) as Item;
-					s.ob.type3 = null;
-					s.clear();
-					s.drawByProtos();
-				}
-				save();
-			},135);
-			if(isTopType){
-				new PushButton(menu,0,0,"添加子项",function():void{
-					me.alpha = 1;
-					var item2:Item = new Item;
-					var data:ItemData = new ItemData();
-					data.name = "";
-					if(ob.isEnum){
-						data.isEnum = ob.isEnum;
-						data.type1 = "";
-					}else{
-						data.type1 = "required";
+			if(deep<2){
+				new ComboBox(menu,0,0,ob.type3?value2label(ob.type3,comb_type3):"",comb_type3,function(c:ComboBox):void{
+					ob.type3 = c.selectedItem.value+"";
+					save();
+					if(!subs) return;
+					for (var j:int = 0; j < subs.numChildren; j++){
+						var s:Item = subs.getChildAt(j) as Item;
+						s.ob.type3 = null;
+						s.clear();
+						s.drawByProtos();
 					}
-					data.type2 = "int32";
-					wrap(item2,data);
-					subArray.push(item2);
-					item2.deep = deep+1;
-					if(!subs)subs = new VBox(me);
-					subs.addChild(item2);
-					up();
 					save();
-				});
+				},135);
+			}
+			if(ob.isClass){
+				if(deep<2){
+					new PushButton(menu,0,0,"添加子项",function():void{
+						me.alpha = 1;
+						var item2:Item = new Item;
+						var data:ItemData = new ItemData();
+						data.name = "";
+						if(ob.isEnum){
+							data.isEnum = ob.isEnum;
+							data.type1 = "";
+						}else{
+							data.type1 = "required";
+						}
+						data.type2 = "int32";
+						wrap(item2,data);
+						subArray.push(item2);
+						item2.deep = deep+1;
+						if(!subs)subs = new VBox(me);
+						subs.addChild(item2);
+						up();
+						save();
+					});
+				}
+				if(!isTopType){
+					if(deep<3){
+						new PushButton(menu,0,0,"删除此项",function():void{
+							dispose();
+							save();
+						});
+					}
+				}
 			}else{
-				new PushButton(menu,0,0,"删除此项",function():void{
-					dispose();
-					save();
-				});
+				if(deep<3){
+					new PushButton(menu,0,0,"删除此项",function():void{
+						dispose();
+						save();
+					});
+				}
 			}
 		}
-		
+		public static var classDic:Dictionary = new Dictionary();
 		private function save():void
 		{
 			ProtoListWin.ins.onSave.dispatch();

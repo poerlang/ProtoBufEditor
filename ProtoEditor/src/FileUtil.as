@@ -25,20 +25,19 @@ package
 			return str;
 		}
 		
-		static public function saveByKey(key:String,content:String):void
+		static public function saveByKey(key:String,content:String):*
 		{
 			var tmp:* = SOManager.get(key);
 			if(tmp){
 				save(tmp,content);
+				return tmp;
 			}
+			return null
 		}
 		
-		private static function save(path:String, content:String):void
+		public static function save(path:String, content:String):void
 		{
 			var f:File = new File(path);
-			if(!f.exists){
-				f.createDirectory();
-			}
 			var s:FileStream = new FileStream();
 			s.open(f,FileMode.WRITE);
 			s.writeUTFBytes(content);

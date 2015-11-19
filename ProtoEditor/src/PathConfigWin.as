@@ -7,9 +7,6 @@ package
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
-	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
 	
 	public class PathConfigWin extends Window
 	{
@@ -25,15 +22,24 @@ package
 			
 			var body:VBox = new VBox(this);
 			
-			new Label(body,0,0,"proto文件的路径:");
+			new Label(body,0,0,"proto文件的路径/文件名:");
 			var protoPath:InputText = new InputText(body, 0, 0, "" );
 			protoPath.width = 888;
+			
+			new Label(body,0,0,"xls文件的目录:");
+			var xlsPath:InputText = new InputText(body, 0, 0, "" );
+			xlsPath.width = 888;
+			
 			getAndSave(protoPath,SO_Proto_Path,function(str:String):void{
 				ProtoListWin.ins.updatePath(str);
+			});
+			getAndSave(xlsPath,SO_Xls_Path,function(str:String):void{
+				
 			});
 			new Label(body,0,0,"");
 		}
 		static public const SO_Proto_Path:String = "protoPath";
+		static public const SO_Xls_Path:String = "xlsPath";
 		private function getAndSave(txt:InputText, key:String,onChange:Function=null):void
 		{
 			txt.addEventListener(Event.CHANGE, function():void {

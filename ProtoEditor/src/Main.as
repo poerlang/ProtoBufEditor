@@ -4,7 +4,7 @@ package
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 
-	[SWF(width="1322",height="900")]
+	[SWF(width="1372",height="900")]
 	public class Main extends Sprite
 	{
 		public function Main()

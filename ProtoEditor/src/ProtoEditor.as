@@ -85,7 +85,7 @@ package {
 		
 		private function export():void
 		{
-			
+			protoListWin.export();
 		}
 		public function show(f:ProtoListFile):void {
 			body.removeChildren();

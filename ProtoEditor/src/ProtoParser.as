@@ -4,8 +4,12 @@ package
 	import flash.events.EventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.filesystem.File;
+	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 	import flash.utils.getTimer;
 
 	public class ProtoParser extends EventDispatcher
@@ -72,13 +76,14 @@ package
 		private var _textData:String;
 		private var _timer:Timer;
 		private var _version:int;
-		private var arrClass:Array=[];
+		public static var classArr:Array=[];
+		public static var classDic:Dictionary = new Dictionary();
 		private var onComplete:Function;
 		private var packageStr:String;
 		private var lastComm:String="";
-
 		public function go(data:*, onComplete:Function, frameLimit:Number=30):void
 		{
+			classArr = [];
 			this.onComplete=onComplete;
 			_data=data;
 			startParsing(frameLimit);
@@ -155,14 +160,28 @@ package
 					trace("完成");
 					if (onComplete)
 					{
-						onComplete(arrClass);
+						for (var i:int = 0; i < classArr.length; i++){
+							ProtoParser.classDic[classArr[i].type2]=(clone(classArr[i]));
+						}
+						onComplete(classArr);
 					}
 					return PARSING_DONE;
 				}
 			}
 			return MORE_TO_PARSE;
 		}
-
+		static public function clone(source:Object) :* {
+			var typeName:String = getQualifiedClassName(source);//获取全名
+			//return;
+			var packageName:String = typeName.split("::")[0];//切出包名
+			var type:Class = getDefinitionByName(typeName) as Class;//获取Class
+			registerClassAlias(packageName, type);//注册Class
+			//复制对象
+			var copier:ByteArray = new ByteArray();
+			copier.writeObject(source);
+			copier.position = 0;
+			return copier.readObject();
+		}
 		protected function startParsing(frameLimit:Number):void
 		{
 			_frameLimit=frameLimit;
@@ -317,7 +336,7 @@ package
 			var arrLine:Array=[];
 			msg.arr=arrLine;
 			msg.isEnum = true;
-			arrClass.push(msg);
+			classArr.push(msg);
 			var token:String=getNextToken();
 			if (token != "{")
 				sendUnknownKeywordError(token);
@@ -340,7 +359,11 @@ package
 					var comm:String=parseFieldComment();
 					var params:Array = parseParamInComment(comm);
 					ob.comm=params[0];
-					if(params[1].lenght==1)ob.type3 = params[1][0];
+					for (var i:int = 0; i < params[1].length; i++){
+						if(params[1][i]=="noc" || params[1][i]=="nos"){
+							ob.type3 = params[1][0];
+						}
+					}
 					ob.params = params[1];
 					ch=getNextChar();
 				}
@@ -373,7 +396,7 @@ package
 			msg.isTopType = true;
 			var arrLine:Array=[];
 			msg.arr=arrLine;
-			arrClass.push(msg);
+			classArr.push(msg);
 			var token:String=getNextToken();
 			if (token != "{")
 				sendUnknownKeywordError(token);
@@ -408,8 +431,13 @@ package
 					var comm:String=parseFieldComment();
 					var params:Array = parseParamInComment(comm);
 					ob.comm=params[0];
-					if(params[1].length==1)ob.type3 = params[1][0];
+					for (var i:int = 0; i < params[1].length; i++){
+						if(params[1][i]=="noc" || params[1][i]=="nos"){
+							ob.type3 = params[1][i];
+						}
+					}
 					ob.params=params[1];
+					ob.paramsStr=params[1].join(" ");
 					ch=getNextChar();
 				}
 
