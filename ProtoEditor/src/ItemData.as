@@ -1,5 +1,6 @@
 package
 {
+	import com.as3xls.xls.Cell;
 	import com.as3xls.xls.ExcelFile;
 	import com.as3xls.xls.Sheet;
 	
@@ -7,6 +8,8 @@ package
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.utils.ByteArray;
+	
+	import parser.Script;
 
 	public class ItemData
 	{
@@ -181,7 +184,17 @@ package
 			}
 			return "";
 		}
-		
+		public function getLoopNum():int
+		{
+			var num:int;
+			var searchIndex:int = paramsStr.search(/loop\d/);
+			if(searchIndex>=0){
+				var searchIndex2:int = paramsStr.search(/loop\d\d/);//支持两位数的 repeated 数量
+				var units:int = searchIndex2>=0? 2:1;//位数
+				num = parseInt(paramsStr.slice(searchIndex+4,searchIndex+4+units));
+			}
+			return num;
+		}
 		public function toXls():void
 		{
 			var path:String = checkPath(SOManager.get(PathConfigWin.SO_Xls_Path));
@@ -211,30 +224,61 @@ package
 			}
 			s.resize(3,col);
 			
-			var deep:int;
-			deep=0;
-			write(this);
-			function write(d:ItemData):void{
+			var index:int=0;
+			var deep:int=0;
+			write(this,"");
+			function write(d:ItemData,parentName:String):void{
 				if(!d.isClass){
-					s.setCell(0,deep,d.type2);
-					s.setCell(1,deep,d.comm+"");
-					s.setCell(2,deep,d.name);
-					deep++;
+					s.setCell(0,index,simple(d.type2));
+					s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
+					s.setCell(2,index,d.comm+"");
+					index++;
 				}
-				if(d.type1=="repeated"|| (d.type1=="class")){
-					if(d.type1=="repeated"){
-						s.setCell(0,deep,d.type2+"_count");
-						s.setCell(1,deep,d.type2+"数量");
-						s.setCell(2,deep,d.arr.length);
-						deep++;
-					}
-					if(d.arr && d.arr.length!=0){
-						for (var i:int = 0; i < d.arr.length; i++){
-							var sub:ItemData = d.arr[i] as ItemData;
-							write(sub);
+				if(d.type1=="class" || d.type1=="repeated"){
+					if(!d.arr){
+						d.arr = [];
+						if(d.isClass){
+							var item:ItemData = ProtoParser.classDic[d.type2];
+							for (var j:int = 0; j < subLen; j++){
+								item = ProtoParser.clone(item);
+								d.arr.push(item);
+							}
 						}
-					}else{
-						Alert.show("errrr23432");
+					}
+				}
+				if(d.type1=="class"){
+					for (var i:int = 0; i < d.arr.length; i++){
+						var sub:ItemData = d.arr[i] as ItemData;
+						if(sub.isClass){
+							write(sub,d.type2);
+						}else{
+							s.setCell(0,index,simple(d.type2));
+							s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
+							s.setCell(2,index,d.comm+"");
+							index++;
+						}
+					}
+				}
+				if(d.type1=="repeated"){
+					var subLen:int = d.getLoopNum();
+					if(subLen==0){
+						Alert.show("你忘了写loop属性");return;
+					}
+					deep++;
+					s.setCell(0,index,d.type2+"_Len");
+					s.setCell(1,index,d.type2+"_Len");
+					s.setCell(2,index,d.type2+"数量:"+d.arr.length);
+					index++;
+					for (var k:int = 0; k < subLen; k++){
+						sub = d.arr[k] as ItemData;
+						if(sub && sub.isClass){
+							write(sub,d.type2);
+						}else{
+							s.setCell(0,index,simple(d.type2));
+							s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
+							s.setCell(2,index,d.comm+"");
+							index++;
+						}
 					}
 				}
 			}
@@ -243,6 +287,88 @@ package
 			fs.open(new File(path),FileMode.WRITE);
 			fs.writeBytes(b);
 			fs.close();
+		}
+		
+		public function toCfg():void
+		{
+			var path:String = checkPath(SOManager.get(PathConfigWin.SO_Xls_Path));
+			if(!path)
+				return;
+			path += type2+".xls";
+			var f:ExcelFile = new ExcelFile();
+			var fs:FileStream = new FileStream();
+			fs.open(new File(path),FileMode.READ);
+			var b:ByteArray = new ByteArray();
+			fs.readBytes(b);
+			fs.close();
+			f.loadFromByteArray(b);
+			var s:Sheet = f.sheets[0];
+			
+			var obs:Array = [];
+			for (var k:int = 0; k < s.rows; k++){
+//				obs.push(Script.New(type2));
+				obs.push({});
+			}
+			for (var i:int = 3; i < s.rows; i++){
+				var index:int=0;
+				write(this,obs[i],i);
+			}
+			function write(d:ItemData,p:*,i2:int):void{
+				if(d.type1=="repeated"|| (d.type1=="class")){
+					var subLen:int = d.getLoopNum();
+					if(!d.arr){
+						d.arr = [];
+						for (var j:int = 0; j < subLen; j++){
+							if(d.isClass){
+								var item:ItemData = ProtoParser.classDic[d.type2];
+								item = ProtoParser.clone(item);
+								d.arr.push(item);
+							}
+						}
+					}
+					if(d.type1=="repeated"){
+						var c:Cell = s.getCell(i2,index);
+						var realLen:int = c.value;
+						index++;
+						if(!p[d.name])p[d.name]=[];
+						for (var cc:int = 0;  cc< realLen; cc++){
+							if(d.isClass){
+								var n:* = Script.New(type2);
+								var a:* = p[d.name];
+								a.push(n);
+								write(d.arr[cc],a,i2);
+							}else{
+								c = s.getCell(i2,index);
+								p[d.name].push(c.value);
+								index++;
+							}
+						}
+					}
+					if(d.type1=="class"){
+						for (var i3:int = 0; i3 < d.arr.length; i3++){
+							write(d.arr[i3],p,i2);
+						}
+					}
+				}else{
+					c = s.getCell(i2,index);
+					p[d.name] = c.value;
+					index++;
+				}
+			}
+			var list:* = Script.New(type2+"List");
+			
+			for (var j:int = 0; j < obs.length; j++){
+				var o:Object = obs[j];
+				//var byte:ByteArray = Main.write(o);
+			}
+			trace();
+		}
+		
+		private function simple(s:String):String
+		{
+			if(s=="int32")return "int";
+			if(s=="string")return "str";
+			return s;
 		}
 		
 		private function checkPath(path:String):String

@@ -1,0 +1,1 @@
+.\bin\protoc.exe --plugin=protoc-gen-as3=".\bin\protoc-gen-as3.bat" --as3_out="./out/" action.proto

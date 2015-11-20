@@ -48,7 +48,7 @@ package
 				var e:ItemData = arr[i] as ItemData;
 				out += e.toString(mode);
 			}
-			out = ("package pb.gamesvr.proto;\n\n"+out);
+			out = ("package proto;\n\n"+out);
 			return out;
 		}
 		public var onSave:Signal = new Signal();
@@ -158,15 +158,29 @@ package
 		
 		public function export():void
 		{
-			if(!ProtoEditor.ins.rootItem){
-				return;
-			}
-			ProtoEditor.ins.rootItem.saveSubs();
-			
 			for (var i:int = 0; i < arr.length; i++){
 				var e:ItemData = arr[i] as ItemData;
-				e.toXls();
+				if(e.type2.indexOf("List")<0)
+					e.toXls();
 			}
+		}
+		public function export2():void
+		{
+			var e:ItemData;
+			var url:Array = [];
+			var path:* = SOManager.get(PathConfigWin.SO_Proto_Path);
+			for (var i:int = 0; i < arr.length; i++){
+				e = arr[i] as ItemData;
+				var aUrl:String = FileUtil.getDir(path,"/out/proto/"+e.type2+".as");
+				url.push(aUrl);
+			}
+			Main.ins.loadClassTxts(url,function():void{
+				for (var j:int = 0; j < arr.length; j++){
+					e = arr[j] as ItemData;
+					if(e.type2.indexOf("List")>=0) continue;
+					e.toCfg();
+				}
+			});
 		}
 	}
 }

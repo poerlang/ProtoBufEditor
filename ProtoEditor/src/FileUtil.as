@@ -24,6 +24,16 @@ package
 			var str:String = s.readUTFBytes(s.bytesAvailable);
 			return str;
 		}
+		public static function getDir(s:String,otherFileName:String = ""):String
+		{
+			s = s.replace(/\\/ig,"/");
+			var split:Array = s.split("/");
+			var fileName:String = split.pop();
+			var dir:String = split.join("/");
+			if(otherFileName!="")
+				return dir+otherFileName;
+			return dir;
+		}
 		
 		static public function saveByKey(key:String,content:String):*
 		{

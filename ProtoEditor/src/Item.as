@@ -180,11 +180,8 @@ package
 					p.saveSubs();
 					p.save();
 				}
-				var searchIndex:int = ob.paramsStr.search(/loop\d/);
-				if(searchIndex>=0){
-					var searchIndex2:int = ob.paramsStr.search(/loop\d\d/);//支持两位数的 repeated 数量
-					var units:int = searchIndex2>=0? 2:1;//位数
-					var num:int = parseInt(ob.paramsStr.slice(searchIndex+4,searchIndex+4+units));
+				var num:int = ob.getLoopNum();
+				if(num>0){
 					for (var j:int = 0; j < num; j++){
 						setTimeout(addsub,55*j,me);
 					}
@@ -269,6 +266,7 @@ package
 				}
 			}
 		}
+		
 		public static var classDic:Dictionary = new Dictionary();
 		private function save():void
 		{

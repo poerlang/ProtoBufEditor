@@ -424,7 +424,7 @@ package com.as3xls.xls {
 			
 			s.setCell(row, col, value);
 			
-			if(version != BIFFVersion.BIFF2) {
+			if(version != BIFFVersion.BIFF2 && s.formats.length>0) {
 				var fmt:String = s.formats[s.xformats[indexToXF].format];
 				if(fmt == null || fmt.length == 0) {
 					fmt = Formatter.builtInFormats[s.xformats[indexToXF].format];

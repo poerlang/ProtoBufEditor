@@ -88,7 +88,6 @@ package
 			_data=data;
 			startParsing(frameLimit);
 		}
-
 		protected function finishParsing():void
 		{
 			if (_timer)
@@ -444,7 +443,7 @@ package
 				if (ch != "}")
 					putBack();
 			} while (ch != "}");
-			trace("解析一个对象",msg.name);
+			trace("解析一个对象",msg.name?msg.name:msg.type2);
 		}
 		
 		private function parseMsgComm(msg:ItemData):void
