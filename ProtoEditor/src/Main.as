@@ -60,7 +60,7 @@ package
 			code=code.replace(/dynamic /g,"");
 			code=code.replace(/\[ArrayElementType(.*)]/g,"");
 			code=code.replace(/final /g,"");
-			code=code.replace(/public var arr:proto\./g,"public var arr:");
+			code=code.replace(/public var arr:proto\.(.*);/g,"public var arr:Array=new Array();");
 			code=code.replace(/static /g,"");
 			code=code.replace(/const /g,"var ");
 			code=code.replace(/override /g,"var ");

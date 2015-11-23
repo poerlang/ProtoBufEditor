@@ -225,16 +225,23 @@ package
 			s.resize(3,col);
 			
 			var index:int=0;
-			var deep:int=0;
-			write(this,"");
-			function write(d:ItemData,parentName:String):void{
-				if(!d.isClass){
+			write(this,this.type2);
+			function write(d:ItemData,parentName:String=""):void{
+				if(!d.isClass && d.type1!="repeated"){
 					s.setCell(0,index,simple(d.type2));
-					s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
+					s.setCell(1,index,parentName!=""?(parentName+"."+d.name+"."+d.type2):(d.name+"."+d.type2));
 					s.setCell(2,index,d.comm+"");
 					index++;
 				}
-				if(d.type1=="class" || d.type1=="repeated"){
+				else if (d.type1=="repeated") {
+					var subLen:int = d.getLoopNum();
+					if(subLen==0){
+						Alert.show("你忘了写loop属性");return;
+					}
+					s.setCell(0,index,"int");
+					s.setCell(1,index,"["+(parentName!=""?(parentName+"."+d.name+"("+d.type2):(d.name+"("+d.type2))+")×"+subLen+"]");
+					s.setCell(2,index,"["+d.comm+"×"+subLen+"]");
+					index++;
 					if(!d.arr){
 						d.arr = [];
 						if(d.isClass){
@@ -245,43 +252,57 @@ package
 							}
 						}
 					}
-				}
-				if(d.type1=="class"){
-					for (var i:int = 0; i < d.arr.length; i++){
-						var sub:ItemData = d.arr[i] as ItemData;
-						if(sub.isClass){
-							write(sub,d.type2);
-						}else{
-							s.setCell(0,index,simple(d.type2));
-							s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
-							s.setCell(2,index,d.comm+"");
-							index++;
-						}
-					}
-				}
-				if(d.type1=="repeated"){
-					var subLen:int = d.getLoopNum();
-					if(subLen==0){
-						Alert.show("你忘了写loop属性");return;
-					}
-					deep++;
-					s.setCell(0,index,d.type2+"_Len");
-					s.setCell(1,index,d.type2+"_Len");
-					s.setCell(2,index,d.type2+"数量:"+d.arr.length);
-					index++;
 					for (var k:int = 0; k < subLen; k++){
 						sub = d.arr[k] as ItemData;
 						if(sub && sub.isClass){
-							write(sub,d.type2);
+							write(sub,parentName+"."+d.type2);
 						}else{
 							s.setCell(0,index,simple(d.type2));
-							s.setCell(1,index,deep>0?(parentName+"."+d.name):d.name);
+							//s.setCell(1, index, parentName != ""?(parentName+"." + d.name):d.name);
+							s.setCell(1,index,parentName!=""?(parentName+"."+d.name+"."+d.type2):d.name+"."+d.type2);
 							s.setCell(2,index,d.comm+"");
 							index++;
 						}
 					}
 				}
+				else if(d.isClass){
+					if(!d.arr){
+						d.arr = [];
+						if(d.isClass){
+							var item:ItemData = ProtoParser.classDic[d.type2];
+							for (var j:int = 0; j < subLen; j++){
+								item = ProtoParser.clone(item);
+								d.arr.push(item);
+							}
+						}
+					}
+					for (var i:int = 0; i < d.arr.length; i++){
+						var sub:ItemData = d.arr[i] as ItemData;
+						if(sub.isClass || sub.type1=="repeated"){
+							write(sub,parentName!=""?(parentName):"");
+						}else{
+							s.setCell(0,index,simple(sub.type2));
+							s.setCell(1,index,parentName!=""?(parentName+"."+sub.name):sub.name);
+							s.setCell(2,index,sub.comm+"");
+							index++;
+						}
+					}
+				}
+				else {
+					throw new Error("未处理的类型");
+				}
 			}
+			for (var l:int = 0; l < s.values.length; l++) 
+			{
+				var l1:Object = s.values[l];
+				var str:String = "";
+				for (var m:int = 0; m < l1.length; m++) 
+				{
+					str+=l1[m].value+ "  " ;
+				}
+				trace(str);
+			}
+			trace(34234);
 			var b:ByteArray = f.saveToByteArray();
 			var fs:FileStream = new FileStream();
 			fs.open(new File(path),FileMode.WRITE);
@@ -336,7 +357,7 @@ package
 								var n:* = Script.New(type2);
 								var a:* = p[d.name];
 								a.push(n);
-								write(d.arr[cc],a,i2);
+								write(d.arr[cc],a[cc],i2);
 							}else{
 								c = s.getCell(i2,index);
 								p[d.name].push(c.value);
@@ -357,11 +378,12 @@ package
 			}
 			var list:* = Script.New(type2+"List");
 			
-			for (var j:int = 0; j < obs.length; j++){
+			for (var j:int = 3; j < obs.length; j++){
 				var o:Object = obs[j];
+				list.arr.push(o);
 				//var byte:ByteArray = Main.write(o);
 			}
-			trace();
+			trace(list);
 		}
 		
 		private function simple(s:String):String

@@ -322,6 +322,7 @@ package
 				if(!subs)return;
 				subs.draw();
 					me.draw();
+					if (me.parent == null || me.parent.parent==null) return;
 					var p:Item = me.parent.parent as Item;
 					if(p){
 						p.up();
