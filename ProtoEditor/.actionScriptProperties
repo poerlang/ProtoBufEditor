@@ -45,7 +45,7 @@
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
   <buildTargets>
     <buildTarget buildTargetName="default" platformId="default">
-      <airSettings airCertificatePath="C:/Users/lx/Documents/111.p12" airTimestamp="true" anePathSet="true" version="1">
+      <airSettings airCertificatePath="G:/git/mygit/src/baozi/111.p12" airTimestamp="true" anePathSet="true" version="1">
         <airExcludes/>
         <anePaths/>
         <newLaunchParams/>
@@ -57,4 +57,3 @@
     </buildTarget>
   </buildTargets>
 </actionScriptProperties>
-
