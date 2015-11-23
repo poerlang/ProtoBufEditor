@@ -5,7 +5,7 @@ package proto;
 message Equip {
     required  int32               id                  = 1;  /*装备序号*/
     required  string              name                = 2;  /*装备名称*/
-    repeated  string              attrs               = 3;  /*属性[loop2]*/
+    repeated  string              attrs               = 3;  /*属性*/
 }
 
 /*玩家信息*/
@@ -25,5 +25,5 @@ message PlayerInfoList {
 
 /*装备列表*/
 message EquipList {
-    required  Equip               arr                 = 1;  /*列表*/
+    repeated  Equip               arr                 = 1;  /*列表*/
 }

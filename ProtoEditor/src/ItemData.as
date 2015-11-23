@@ -10,6 +10,9 @@ package
 	import flash.utils.ByteArray;
 	
 	import parser.Script;
+	
+	import proto.EquipList2;
+	import proto.PlayerInfoList2;
 
 	public class ItemData
 	{
@@ -269,10 +272,10 @@ package
 					if(!d.arr){
 						d.arr = [];
 						if(d.isClass){
-							var item:ItemData = ProtoParser.classDic[d.type2];
-							for (var j:int = 0; j < subLen; j++){
-								item = ProtoParser.clone(item);
-								d.arr.push(item);
+							var item2:ItemData = ProtoParser.classDic[d.type2];
+							for (var jj:int = 0; jj < subLen; jj++){
+								item2 = ProtoParser.clone(item2);
+								d.arr.push(item2);
 							}
 						}
 					}
@@ -327,8 +330,8 @@ package
 			
 			var obs:Array = [];
 			for (var k:int = 0; k < s.rows; k++){
-//				obs.push(Script.New(type2));
-				obs.push({});
+				obs.push(Script.New(type2));
+				//obs.push({});
 			}
 			for (var i:int = 3; i < s.rows; i++){
 				var index:int=0;
@@ -354,7 +357,7 @@ package
 						if(!p[d.name])p[d.name]=[];
 						for (var cc:int = 0;  cc< realLen; cc++){
 							if(d.isClass){
-								var n:* = Script.New(type2);
+								var n:* = Script.New(d.type2);
 								var a:* = p[d.name];
 								a.push(n);
 								write(d.arr[cc],a[cc],i2);
@@ -383,7 +386,12 @@ package
 				list.arr.push(o);
 				//var byte:ByteArray = Main.write(o);
 			}
-			trace(list);
+			var byte:ByteArray = Main.write(list);
+			if(type2.indexOf("Eq")<0){
+				var e:PlayerInfoList2 = new PlayerInfoList2();
+				e.mergeFrom(byte);
+				trace(e);
+			}
 		}
 		
 		private function simple(s:String):String

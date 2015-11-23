@@ -139,7 +139,7 @@ package com.netease.protobuf {
 					ZigZag.encode64low(value.low, value.high),
 					ZigZag.encode64high(value.low, value.high))
 		}
-		public static function write$TYPE_MESSAGE(output:WritingBuffer, value:Message):void {
+		public static function write$TYPE_MESSAGE(output:WritingBuffer, value:*):void {
 			const i:uint = output.beginBlock()
 			value.writeToBuffer(output)
 			output.endBlock(i)
