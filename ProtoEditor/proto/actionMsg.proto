@@ -1,0 +1,9 @@
+package proto;
+
+option java_package = "proto";
+option java_outer_classname = "Protos";
+
+message Msg { 
+  required int32 id = 1; 
+  optional bytes data = 2;
+}

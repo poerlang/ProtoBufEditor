@@ -6,11 +6,18 @@ package
 	import com.bit101.components.Window;
 	
 	import flash.display.DisplayObjectContainer;
+	import flash.events.MouseEvent;
 	import flash.filesystem.File;
+	import flash.utils.ByteArray;
 	import flash.utils.clearInterval;
 	import flash.utils.setTimeout;
 	
+	import net.SimpleSocketClient;
+	import net.SimpleSocketMessageEvent;
+	
 	import org.osflash.signals.Signal;
+	
+	import proto.Msg;
 	
 	public class ProtoListWin extends Window
 	{
@@ -55,6 +62,11 @@ package
 		public function ProtoListWin(parent:DisplayObjectContainer=null, xpos:Number=0, ypos:Number=0, title:String="列表")
 		{
 			ins = this;
+			if(s==null){
+				s = new SimpleSocketClient();
+				s.addEventListener(SimpleSocketMessageEvent.MESSAGE_RECEIVED, handle);
+				s.s.connect("127.0.0.1", 8463);
+			}
 			onSave.add(onSaveHander);
 			super(parent, xpos, ypos, title);
 			var html:VBox = new VBox(this);
@@ -106,6 +118,7 @@ package
 		private var setTimeout2:uint;
 
 		private var arr:Array;
+		private var s:SimpleSocketClient;
 		public function updatePath(path:String):void
 		{
 			if(!path){
@@ -181,6 +194,29 @@ package
 					e.toCfg();
 				}
 			});
+		}
+		public function export3():void
+		{
+			var e:ItemData;
+			var url:Array = [];
+			var path:* = SOManager.get(PathConfigWin.SO_Proto_Path);
+			for (var i:int = 0; i < arr.length; i++){
+				e = arr[i] as ItemData;
+				var aUrl:String = FileUtil.getDir(path,"/out/proto/"+e.type2+".as");
+				url.push(aUrl);
+			}
+			Main.ins.loadClassTxts(url,function():void{
+				var b:ByteArray = now.item.toMsg();
+				var msg:Msg = new Msg();
+				msg.data = b;
+				msg.id = 100;
+				var bb:ByteArray = Main.write(msg);
+				trace(bb);
+				s.send(bb);
+			});
+		}
+		public function handle(e:SimpleSocketMessageEvent):void {
+			trace("收到数据"+e.message);
 		}
 	}
 }

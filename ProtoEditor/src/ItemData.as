@@ -92,6 +92,7 @@ package
 		public static const MODE_NORMAL:int = 0;
 		public static const MODE_SERVER:int = 1;
 		public static const MODE_CLIENT:int = 2;
+		public var value:*;
 		public function toString(mode:int=0,index:int=0):String
 		{
 			if(mode==MODE_SERVER && type3=="nos"){

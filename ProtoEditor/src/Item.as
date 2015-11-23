@@ -13,6 +13,8 @@ package
 	import flash.utils.Dictionary;
 	import flash.utils.setTimeout;
 	
+	import parser.Script;
+	
 	public class Item extends VBox
 	{
 		//data:
@@ -265,6 +267,11 @@ package
 					});
 				}
 			}
+			var inputValue:InputText = new InputText(menu,0,0,"value");
+			inputValue.addEventListener(Event.CHANGE,function(e:Event):void{
+				var input:InputText = e.target as InputText;
+				value = type2=="int32"?parseInt(input.text):input.text;
+			});
 		}
 		
 		public static var classDic:Dictionary = new Dictionary();
@@ -302,6 +309,7 @@ package
 		public static const comb_type3:Array = [{value:"",label:""},{value:"nos",label:"此字段服务端不使用"},{value:"noc",label:"此字段客户端不使用"}];
 
 		private var menu:HBox;
+		public var value:*;
 
 		public function get isEnum():Boolean
 		{
@@ -384,6 +392,34 @@ package
 				newArr.push(item.ob);
 			}
 			ob.arr = newArr;
+		}
+		public function toMsg():ByteArray
+		{
+			var msg:* = write(this);
+			function write(d:Item):*{
+				var item:Item;
+				var subLen:int;
+				if(d.subs)subLen = d.subs.numChildren;
+				if(d.type1=="class"){
+					var msg:* = Script.New(type2);
+					for (var i:int = 0;  i< subLen; i++){
+						item = d.subs.getChildAt(i) as Item;
+						msg[item.ob.name] = write(item);
+					}
+					return msg;
+				}
+				if(d.type1=="repeated"){
+					var tmp:Array = [];
+					for (var k:int = 0;  k< subLen; k++){
+						item = d.subs.getChildAt(k) as Item;
+						tmp.push(write(item));
+					}
+					return tmp;
+				}
+				return d.value;
+			}
+			var b:* = Main.write(msg)
+			return b;
 		}
 	}
 }

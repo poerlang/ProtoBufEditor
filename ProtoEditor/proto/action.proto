@@ -3,27 +3,27 @@ package proto;
 
 /*Equip*/
 message Equip {
-    required  int32               id                  = 1;  /*装备序号*/
-    required  string              name                = 2;  /*装备名称*/
-    repeated  string              attrs               = 3;  /*属性*/
+    required  int32               id                  = 1;  /*装备序号*/
+    required  string              name                = 2;  /*装备名称*/
+    repeated  string              attrs               = 3;  /*属性[loop1]*/
 }
 
 /*玩家信息*/
 message PlayerInfo {
-    required  int32               id                  = 1;  /*玩家序号*/
-    required  string              nickname            = 2;  /*玩家昵称*/
-    required  int32               level               = 3;  /*等级*/
-    repeated  Equip               equips              = 4;  /*装备[loop2]*/
-    required  int32               exp                 = 5;  /*经验*/
-    required  string              email               = 6;  /*邮件地址[noc]*/
+    required  int32               id                  = 1;  /*玩家序号*/
+    required  string              nickname            = 2;  /*玩家昵称*/
+    required  int32               level               = 3;  /*等级*/
+    repeated  Equip               equips              = 4;  /*装备*/
+    required  int32               exp                 = 5;  /*经验*/
+    required  string              email               = 6;  /*邮件地址[noc]*/
 }
 
 /*玩家列表*/
 message PlayerInfoList {
-    repeated  PlayerInfo          arr                 = 1;  /*列表*/
+    repeated  PlayerInfo          arr                 = 1;  /*列表*/
 }
 
 /*装备列表*/
 message EquipList {
-    repeated  Equip               arr                 = 1;  /*列表*/
+    repeated  Equip               arr                 = 1;  /*列表*/
 }

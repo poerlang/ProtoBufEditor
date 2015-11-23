@@ -76,6 +76,9 @@ package {
 			new PushButton(menu,0,0,"导出cfg",function():void{
 				export2();
 			});
+			new PushButton(menu,0,0,"发送",function():void{
+				export3();
+			});
 			new PushButton(menu,0,0,"配置路径",function():void{
 				if(pathConfigWin.parent==null){
 					ins.addChild(pathConfigWin);
@@ -93,6 +96,10 @@ package {
 		private function export2():void
 		{
 			protoListWin.export2();
+		}
+		private function export3():void
+		{
+			protoListWin.export3();
 		}
 		public function show(f:ProtoListFile):void {
 			body.removeChildren();
