@@ -380,6 +380,17 @@ package
 				var len:int = String(m[0]).length;
 				comm = comm.slice(0,m.index)+comm.slice(m.index+len);
 				var param:Array = String(m[1]).split(",");
+				var num:int = -1;
+				for (var i:int = 0; i < param.length; i++) 
+				{
+					if(String(param[i]).search(/^\d*[0-9]+\d*$/)>=0){
+						num = parseInt(param[i]);
+						break;
+					}
+				}
+				if(num>=0){
+					return [comm,param,num];
+				}
 				return [comm,param];
 			}
 			return [comm,[]];
@@ -453,6 +464,7 @@ package
 				var param:Array = parseParamInComment(comm);
 				msg.comm = param[0];
 				msg.params = param[1];
+				if(param.length==3)msg.code = param[2];
 				lastComm = "";
 			}
 		}

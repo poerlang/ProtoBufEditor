@@ -209,7 +209,11 @@ package
 				var b:ByteArray = now.item.toMsg();
 				var msg:Msg = new Msg();
 				msg.data = b;
-				msg.id = 100;
+				if(now.item.ob.num<0){
+					Alert.show("尚未指定消息号");
+					return;
+				}
+				msg.id = now.item.ob.num;
 				var bb:ByteArray = Main.write(msg);
 				trace(bb);
 				s.send(bb);
