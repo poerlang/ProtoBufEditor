@@ -154,9 +154,9 @@ package parser
 //			try{
 				var node:GNode=__rootnode.motheds[funcname];
 				if(node && node.nodeType==GNodeType.FunDecl){
-					if(funcname=="init"){
-						trace(1);
-					}
+//					if(funcname=="init"){
+						//trace(1);
+//					}
 					var tisret:Boolean=isret;
 					isret=false;
 					local_vars.push({});

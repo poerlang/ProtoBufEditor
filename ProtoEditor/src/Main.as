@@ -50,6 +50,7 @@ package
 			tmp += "import com.netease.protobuf.fieldDescriptors.FieldDescriptor$TYPE_STRING;\n";
 			tmp += "import com.netease.protobuf.fieldDescriptors.RepeatedFieldDescriptor$TYPE_MESSAGE;\n";
 			tmp += "import com.netease.protobuf.fieldDescriptors.FieldDescriptor$TYPE_MESSAGE;\n";
+			tmp += "import flash.utils.ByteArray;\n";
 			tmp += "\n";
 			code=code.replace("import com.netease.protobuf.*;","");
 			code=code.replace("import com.netease.protobuf.fieldDescriptors.*;",tmp);
@@ -72,6 +73,7 @@ package
 			code=code.replace(/com.netease.protobuf.WireType\./g,"WireType.");
 			code=code.replace(/com.netease.protobuf.WriteUtils\./g,"WriteUtils.");
 			code=code.replace(/com.netease.protobuf.ReadUtils\./g,"ReadUtils.");
+			code=code.replace(/:flash.utils.ByteArray/g,":ByteArray");
 			return code;
 		}
 

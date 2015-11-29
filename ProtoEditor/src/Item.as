@@ -404,7 +404,13 @@ package
 					var msg:* = Script.New(type2);
 					for (var i:int = 0;  i< subLen; i++){
 						item = d.subs.getChildAt(i) as Item;
-						msg[item.ob.name] = write(item);
+						var v:* = write(item);
+						if(item.ob.type1=="optional"){
+							msg[item.ob.name+"$field"] = v;
+						}else{
+							msg[item.ob.name] = v;
+						}
+						
 					}
 					return msg;
 				}

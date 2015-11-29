@@ -258,7 +258,7 @@ package parser
 					var cnode:GNode=new GNode(GNodeType.FunDecl,tok);
 					cnode.vartype="void";//函数默认的为无返回类型
 					//
-					matchfun(TokenType.ident);
+					matchfun(TokenType.ident,null,cnode);
 					match(TokenType.LParent);
 					cnode.addChild(ParamList());
 					match(TokenType.RParent);
@@ -1001,8 +1001,12 @@ package parser
 				error();
 			}
 		}
-		private function matchfun(type:int,word=null):void
+		private function matchfun(type:int,word=null,n:GNode=null):void
 		{
+			if(tok.word=="get" || tok.word=="set"){
+				nextToken();
+				n.name = tok.word;
+			}
 			if(type==1&&tok.type==23&&tok.word){
 				return;
 			}

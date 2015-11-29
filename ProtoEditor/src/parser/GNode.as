@@ -71,6 +71,7 @@ package parser
 		}
 		//只有class,varst和func存在name,varID,constID是否需要存在，目前还没想好
 		public function get name():String{
+			if(_name)return _name;
 			if(nodeType==GNodeType.AssignStm){
 				return childs[0].name;
 			}
@@ -78,6 +79,11 @@ package parser
 				return token.word;
 			}
 			return null;
+		}
+		private var _name:String;
+		public function set name(v:String):void{
+			_name = v;
+			token.word = v;
 		}
 		public function addChild(node:GNode):void{
 			childs.push(node);

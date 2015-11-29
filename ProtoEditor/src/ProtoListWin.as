@@ -65,7 +65,7 @@ package
 			if(s==null){
 				s = new SimpleSocketClient();
 				s.addEventListener(SimpleSocketMessageEvent.MESSAGE_RECEIVED, handle);
-				s.s.connect("127.0.0.1", 8463);
+				s.s.connect("moketao.picp.net", 21354);
 			}
 			onSave.add(onSaveHander);
 			super(parent, xpos, ypos, title);
